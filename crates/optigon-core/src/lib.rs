@@ -11,6 +11,7 @@
 pub mod capture;
 pub mod chooser;
 pub mod config;
+pub mod dict;
 pub mod domain;
 pub mod model;
 pub mod prng;
@@ -19,6 +20,7 @@ pub mod sort;
 pub use capture::{RawRow, Recorder, RegretReport};
 pub use chooser::Chooser;
 pub use config::Config;
+pub use dict::Dict;
 pub use domain::Domain;
 pub use model::{TrainConfig, TrainOutcome};
 pub use sort::Sort;

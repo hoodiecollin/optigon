@@ -355,6 +355,48 @@ mod tests {
     }
 
     #[test]
+    fn learned_chooser_beats_best_fixed_on_dict() {
+        use crate::dict::{Dict, DictInput, build_dict_scenario};
+
+        // A corpus spanning the regimes each lookup wins, including wide-key
+        // workloads where `direct` is masked out and narrow-key ones where it
+        // wins — so the generic mask path is exercised end to end.
+        fn corpus(count: usize, base_seed: u32) -> Vec<DictInput> {
+            let mut out = Vec::new();
+            for i in 0..count {
+                let seed = base_seed.wrapping_add(i as u32);
+                out.push(match i % 4 {
+                    0 => build_dict_scenario(8 + (i % 32), 8 + (i % 32), 1.0, 0.5, seed), // tiny
+                    1 => build_dict_scenario(1000, 1000, 8.0, 0.5, seed),                 // medium
+                    2 => build_dict_scenario(4000, 4000, 512.0, 0.3, seed), // wide → direct masked
+                    _ => build_dict_scenario(4000, 6000, 0.1, 0.7, seed),   // narrow → direct wins
+                });
+            }
+            out
+        }
+
+        let mut rec: Recorder<Dict> = Recorder::new();
+        for input in corpus(200, 1) {
+            rec.observe(&input);
+        }
+        let mut chooser: Chooser<Dict> = Chooser::new();
+        let cfg = TrainConfig {
+            steps: 800,
+            ..Default::default()
+        };
+        chooser.train(&rec, &cfg).unwrap();
+
+        let report = chooser.evaluate(&corpus(100, 9999));
+        assert!(
+            report.learned_mean < report.best_fixed_mean,
+            "learned {:.4} should beat best-fixed impl {} at {:.4}",
+            report.learned_mean,
+            report.best_fixed_impl,
+            report.best_fixed_mean
+        );
+    }
+
+    #[test]
     fn config_can_pin_and_forbid() {
         let chooser: Chooser<Sort> = Chooser::new();
         let input = build_sort_scenario(1000, 0.5, 4.0, 3);
