@@ -1,0 +1,40 @@
+# Optigon — the many-faceted optimizer. A Rust core that packages several
+# interchangeable implementations per domain and learns (via regret-scored
+# dispatch) which to run per workload, exposed to TypeScript (Node/Bun, napi-rs)
+# and Python (PyO3) as native addons.
+#
+# Rust is the root workspace; a Bun + Turbo layer (package.json / turbo.json)
+# sits on top for TS scripting, orchestration, and caching. Structure modeled on
+# ~/Projects/ForgeDB.
+[workspace]
+resolver = "2"
+members = [
+    "crates/optigon-core",
+    "crates/optigon-node",
+    "crates/optigon-python",
+]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/hoodiecollin/optigon"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# The real candle crate — the port target of ml-prototyping's @voidloop/ml-core
+# TS mirror. The training loop maps onto this mechanically.
+candle-core = "0.8"
+candle-nn = "0.8"
+
+# napi-rs and pyo3 catch panics at the FFI boundary and convert them to JS/Python
+# errors; that catch is only sound if unwinding is enabled (a `panic = "abort"`
+# release would take the whole runtime down instead). Workspace-root only —
+# member-crate profiles are ignored by cargo.
+[profile.release]
+panic = "unwind"
+
+# The profile 'dist' (cargo-dist) will build with, once distribution lands.
+[profile.dist]
+inherits = "release"
+lto = "thin"

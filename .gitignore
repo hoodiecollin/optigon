@@ -1,0 +1,23 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Node / Bun
+node_modules
+.turbo
+bun.lockb
+
+# napi-generated addon artifacts (rebuilt by `bun node:build`)
+**/*.node
+crates/optigon-node/index.js
+crates/optigon-node/index.d.ts
+
+# Python build
+.venv
+*.egg-info
+__pycache__
+*.so
+
+# Trained-model + demo outputs
+*.safetensors
+*.meta.json
