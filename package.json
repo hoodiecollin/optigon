@@ -13,8 +13,12 @@
 		"node:build": "cd crates/optigon-node && napi build --platform --release",
 		"node:build:debug": "cd crates/optigon-node && napi build --platform",
 		"node:demo": "cd examples/node-demo && bun run demo.ts",
+		"node:demo:dict": "cd examples/node-demo && bun run dict-demo.ts",
+		"node:demo:mode2": "cd examples/node-demo && bun run mode2-demo.ts",
 		"py:build": "cd crates/optigon-python && maturin develop --release",
-		"py:demo": "cd examples/py-demo && python3 demo.py"
+		"py:demo": "cd examples/py-demo && python3 demo.py",
+		"py:demo:dict": "cd examples/py-demo && python3 dict_demo.py",
+		"py:demo:mode2": "cd examples/py-demo && python3 mode2_demo.py"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9",

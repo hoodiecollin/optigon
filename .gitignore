@@ -21,3 +21,5 @@ __pycache__
 # Trained-model + demo outputs
 *.safetensors
 *.meta.json
+# Mode-2 capture logs written by the demos
+*.jsonl
