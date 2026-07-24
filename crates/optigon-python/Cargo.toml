@@ -1,0 +1,19 @@
+[package]
+name = "optigon-python"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Optigon native extension for Python (PyO3). A thin 1:1 wrapper over optigon-core — no logic of its own."
+
+[lib]
+# The Python extension module is imported as `optigon`, so the lib name must
+# match `#[pymodule] fn optigon`.
+name = "optigon"
+crate-type = ["cdylib"]
+
+[dependencies]
+optigon-core = { path = "../optigon-core" }
+# abi3-py38 → one wheel works across all CPython >= 3.8. extension-module omits
+# linking libpython so `cargo build` also compiles this standalone for CI checks.
+pyo3 = { version = "0.23", features = ["abi3-py38", "extension-module"] }
