@@ -14,6 +14,7 @@ pub mod config;
 pub mod dict;
 pub mod domain;
 pub mod model;
+pub mod online;
 pub mod prng;
 pub mod sort;
 
@@ -23,4 +24,5 @@ pub use config::Config;
 pub use dict::Dict;
 pub use domain::Domain;
 pub use model::{TrainConfig, TrainOutcome};
+pub use online::{OnlineAb, read_log_jsonl, retrain_from_log};
 pub use sort::Sort;

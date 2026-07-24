@@ -13,12 +13,19 @@
 
 use std::marker::PhantomData;
 
+use serde::{Deserialize, Serialize};
+
 use crate::domain::Domain;
 
 /// One captured workload: cheap features plus the measured cost of each impl
 /// (with a mask zeroing inapplicable impls). Costs are raw (not yet log'd or
 /// standardized); the chooser does that when it trains.
-#[derive(Clone, Debug)]
+///
+/// Mode 1 fills every applicable column; Mode 2 (online A/B) fills a single
+/// column — the one impl it actually ran and measured — leaving the mask a
+/// one-hot. The training loop masks per row, so both shapes train identically.
+/// `serde` lets Mode-2 logs persist to disk for genuinely offline retraining.
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RawRow {
     pub features: Vec<f32>,
     pub costs: Vec<f64>,
