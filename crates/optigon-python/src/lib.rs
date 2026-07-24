@@ -7,7 +7,11 @@
 
 use std::panic::{AssertUnwindSafe, catch_unwind};
 
-use optigon_core::{Chooser, Config, Domain, Recorder, TrainConfig, sort::Sort};
+use optigon_core::{
+    Chooser, Config, Domain, Recorder, TrainConfig,
+    dict::{Dict, DictInput},
+    sort::Sort,
+};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 
@@ -209,12 +213,166 @@ impl SortChooser {
     }
 }
 
+/// The dict domain's implementation ids, in fixed order.
+#[pyfunction]
+fn dict_impl_names() -> Vec<String> {
+    Dict::impl_names().iter().map(|s| s.to_string()).collect()
+}
+
+/// A learned dictionary-lookup dispatcher: observe (keys, queries) workloads
+/// (Mode-1 capture), train, then let it pick the fastest lookup structure per
+/// workload. `direct` (a direct-address table) is applicable only for a bounded
+/// key range; the chooser masks it out otherwise.
+#[pyclass]
+pub struct DictChooser {
+    recorder: Recorder<Dict>,
+    chooser: Chooser<Dict>,
+}
+
+#[pymethods]
+impl DictChooser {
+    #[new]
+    fn new() -> Self {
+        Self {
+            recorder: Recorder::new(),
+            chooser: Chooser::new(),
+        }
+    }
+
+    /// Load a chooser previously saved with `save`.
+    #[staticmethod]
+    fn load(prefix: String) -> PyResult<Self> {
+        guard(|| {
+            Ok(Self {
+                recorder: Recorder::new(),
+                chooser: Chooser::<Dict>::load(&prefix).map_err(to_err)?,
+            })
+        })
+    }
+
+    /// Observe a workload (Mode-1 capture): measures every applicable lookup on
+    /// `(keys, queries)`.
+    fn observe(&mut self, keys: Vec<i32>, queries: Vec<i32>) -> PyResult<()> {
+        guard(|| {
+            self.recorder.observe(&DictInput { keys, queries });
+            Ok(())
+        })
+    }
+
+    /// Number of workloads observed so far.
+    fn observed(&self) -> u32 {
+        self.recorder.len() as u32
+    }
+
+    /// Train (or retrain) on everything observed. `steps` overrides the count.
+    #[pyo3(signature = (steps=None))]
+    fn train(&mut self, steps: Option<u32>) -> PyResult<TrainResult> {
+        guard(|| {
+            let cfg = TrainConfig {
+                steps: steps.unwrap_or(1500) as usize,
+                ..Default::default()
+            };
+            let out = self.chooser.train(&self.recorder, &cfg).map_err(to_err)?;
+            Ok(TrainResult {
+                steps: out.steps_run as u32,
+                initial_loss: out.initial_loss as f64,
+                final_loss: out.final_loss as f64,
+            })
+        })
+    }
+
+    /// Whether the chooser has been trained.
+    fn is_trained(&self) -> bool {
+        self.chooser.is_trained()
+    }
+
+    /// The index of the impl the chooser would pick for `(keys, queries)`.
+    fn select(&self, keys: Vec<i32>, queries: Vec<i32>) -> PyResult<u32> {
+        guard(|| Ok(self.chooser.select(&DictInput { keys, queries }) as u32))
+    }
+
+    /// The name of the impl the chooser would pick for `(keys, queries)`.
+    fn selected_name(&self, keys: Vec<i32>, queries: Vec<i32>) -> PyResult<String> {
+        guard(|| {
+            let idx = self.chooser.select(&DictInput { keys, queries });
+            Ok(Dict::impl_names()[idx].to_string())
+        })
+    }
+
+    /// Pick the fastest lookup for `(keys, queries)` and run it, returning the
+    /// per-query results (the stored value, or `-1` on a miss).
+    fn lookup(&self, keys: Vec<i32>, queries: Vec<i32>) -> PyResult<Vec<i32>> {
+        guard(|| Ok(self.chooser.run(&DictInput { keys, queries })))
+    }
+
+    /// Score the chooser on a set of workloads (parallel `keys` / `queries` lists).
+    fn evaluate(
+        &self,
+        keys_list: Vec<Vec<i32>>,
+        queries_list: Vec<Vec<i32>>,
+    ) -> PyResult<RegretReport> {
+        guard(|| {
+            if keys_list.len() != queries_list.len() {
+                return Err(PyRuntimeError::new_err(
+                    "evaluate: keys_list and queries_list must be the same length",
+                ));
+            }
+            let inputs: Vec<DictInput> = keys_list
+                .into_iter()
+                .zip(queries_list)
+                .map(|(keys, queries)| DictInput { keys, queries })
+                .collect();
+            let r = self.chooser.evaluate(&inputs);
+            Ok(RegretReport {
+                learned_mean: r.learned_mean,
+                optimal_rate: r.optimal_rate,
+                best_fixed_impl: r.best_fixed_impl as u32,
+                best_fixed_impl_name: Dict::impl_names()[r.best_fixed_impl].to_string(),
+                best_fixed_mean: r.best_fixed_mean,
+                n: r.n as u32,
+            })
+        })
+    }
+
+    /// Pin a specific impl (by index) and bypass the model, or clear with `None`.
+    #[pyo3(signature = (impl_idx=None))]
+    fn pin(&mut self, impl_idx: Option<u32>) {
+        let mut c = self.chooser.config().clone();
+        c.force = impl_idx.map(|i| i as usize);
+        self.chooser.set_config(c);
+    }
+
+    /// Forbid (or re-allow) an impl by index — it is masked out of selection.
+    fn forbid(&mut self, impl_idx: u32, forbidden: bool) {
+        let mut c = self.chooser.config().clone();
+        if c.forbidden.len() < Dict::impl_count() {
+            c.forbidden = vec![false; Dict::impl_count()];
+        }
+        if let Some(x) = c.forbidden.get_mut(impl_idx as usize) {
+            *x = forbidden;
+        }
+        self.chooser.set_config(c);
+    }
+
+    /// Clear all steering (pin, forbid, bias).
+    fn clear_steering(&mut self) {
+        self.chooser.set_config(Config::default());
+    }
+
+    /// Persist to `<prefix>.safetensors` + `<prefix>.meta.json`.
+    fn save(&self, prefix: String) -> PyResult<()> {
+        guard(|| self.chooser.save(&prefix).map_err(to_err))
+    }
+}
+
 /// The `optigon` extension module.
 #[pymodule]
 fn optigon(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SortChooser>()?;
+    m.add_class::<DictChooser>()?;
     m.add_class::<TrainResult>()?;
     m.add_class::<RegretReport>()?;
     m.add_function(wrap_pyfunction!(sort_impl_names, m)?)?;
+    m.add_function(wrap_pyfunction!(dict_impl_names, m)?)?;
     Ok(())
 }
