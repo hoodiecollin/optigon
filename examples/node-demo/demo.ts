@@ -31,15 +31,15 @@ function buildScenario(
 	seed: number,
 ): number[] {
 	const rng = mulberry32(seed ^ 0x9e3779b1)
-	n = Math.max(2, Math.round(n))
-	const keySpace = Math.max(2, Math.round(n * keySpaceMult))
-	sortedness = Math.min(1, Math.max(0, sortedness))
-	const keys = new Array<number>(n)
-	for (let i = 0; i < n; i++) keys[i] = Math.floor(rng() * keySpace)
+	const size = Math.max(2, Math.round(n))
+	const keySpace = Math.max(2, Math.round(size * keySpaceMult))
+	const sorted = Math.min(1, Math.max(0, sortedness))
+	const keys = new Array<number>(size)
+	for (let i = 0; i < size; i++) keys[i] = Math.floor(rng() * keySpace)
 	keys.sort((a, b) => a - b)
-	const disturb = Math.round((1 - sortedness) * n)
+	const disturb = Math.round((1 - sorted) * size)
 	for (let t = 0; t < disturb; t++) {
-		const i = Math.floor(rng() * n) % n
+		const i = Math.floor(rng() * size) % size
 		keys[i] = Math.floor(rng() * keySpace)
 	}
 	return keys
