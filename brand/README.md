@@ -19,6 +19,7 @@ Sibling set to ForgeDB and `typescript-to-rust`.
 | `optimark-mono-inverse.svg` | single-ink on dark |
 | `optigon-horizontal-{light,dark,mono}.svg` | mark + wordmark + descriptor |
 | `optigon-stacked-{light,dark,mono}.svg` | centred, for square slots |
+| `optigon-horizontal-{light,dark}.outlined.svg` | horizontal lockup with the wordmark converted to paths (see below) |
 
 Mono lockups fill with `currentColor` — set `color` on the parent and they follow.
 
@@ -31,6 +32,13 @@ switch (as the root README does).
 Lockup wordmarks are **live `<text>`** with system-font fallback stacks (Space
 Grotesk → `system-ui`, JetBrains Mono → `monospace`), kept editable on purpose.
 They render cleanly everywhere but are only pixel-identical to the intended
-typefaces where those fonts are installed; outline the text (Figma *Outline
-stroke* / `svgo` + text-to-path) before any use that must match exactly. The icon
-marks are pure geometry and need no conversion.
+typefaces where those fonts are installed. The icon marks are pure geometry and
+need no conversion.
+
+For contexts that must render the intended typefaces without the fonts installed
+(the root README hero, npm/crates package pages, social embeds), use the
+`*.outlined.svg` copies: the wordmark (Space Grotesk 600) and tagline (JetBrains
+Mono 400) are baked to `<path>` — HarfBuzz-shaped from the upstream OFL fonts, so
+kerning matches a browser — with no `<text>` or `font-family` left. The editable
+`<text>` originals are the source of truth; regenerate the outlined copies from
+them after any wordmark edit.
