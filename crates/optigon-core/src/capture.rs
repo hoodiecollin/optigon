@@ -5,8 +5,8 @@
 //!     consumer's tests drive the domain interface, running *every* impl to
 //!     record the full cost row. More diverse tests → a better chooser.
 //!   - **Mode 2 (prod A/B):** capture in production by switching impls per call
-//!     and logging the measured cost (the online path; same row shape, not built
-//!     in this walking-skeleton slice).
+//!     and logging the measured cost (the online path in [`crate::online`]; same
+//!     row shape, a single filled column with a one-hot mask).
 //!
 //! This module also holds the regret evaluation used to report how good a
 //! trained chooser is versus the oracle and the best fixed impl.
