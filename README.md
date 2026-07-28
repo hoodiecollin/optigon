@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="brand/optigon-horizontal-dark.svg">
-    <img alt="Optigon — the many-faceted optimizer" src="brand/optigon-horizontal-light.svg" width="400">
+    <source media="(prefers-color-scheme: dark)" srcset="brand/optigon-horizontal-dark.outlined.svg">
+    <img alt="Optigon — the many-faceted optimizer" src="brand/optigon-horizontal-light.outlined.svg" width="400">
   </picture>
 </p>
 
