@@ -1,0 +1,29 @@
+optigon
+Copyright 2026 Collin Kokotas
+
+This product is licensed under the terms of either the MIT license or the
+Apache License, Version 2.0, at your option. See LICENSE-MIT and LICENSE-APACHE.
+
+---
+
+Third-party components
+
+This project builds on the following open-source software. Each is distributed
+under its own license (all permissive: MIT and/or Apache-2.0); their copyrights
+remain with their respective authors.
+
+Rust core (optigon-core):
+  - candle-core / candle-nn — the ML training + inference engine     (MIT OR Apache-2.0)
+  - serde, serde_json       — serialization / model metadata + JSONL (MIT OR Apache-2.0)
+
+Native bindings:
+  - napi-rs (napi, napi-derive, napi-build) — Node/Bun addon FFI     (MIT)
+  - PyO3                    — Python extension FFI (abi3 wheel)       (Apache-2.0)
+
+Tooling (dev/build):
+  - Biome                   — lint + format tooling                  (MIT OR Apache-2.0)
+  - Turbo                   — task orchestration + caching            (MIT)
+
+Full license texts for these dependencies are reproduced in their respective
+source distributions (via `cargo`/`bun`). This NOTICE is informational and does
+not modify the terms of the licenses above.
