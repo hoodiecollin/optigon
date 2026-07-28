@@ -1,7 +1,14 @@
-# Optigon <sub>·&nbsp;the many-faceted optimizer</sub>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/optigon-horizontal-dark.svg">
+    <img alt="Optigon — the many-faceted optimizer" src="brand/optigon-horizontal-light.svg" width="400">
+  </picture>
+</p>
 
-![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)
-![Status: experimental](https://img.shields.io/badge/status-experimental-orange)
+<p align="center">
+  <img alt="License: MIT OR Apache-2.0" src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue">
+  <img alt="Status: experimental" src="https://img.shields.io/badge/status-experimental-orange">
+</p>
 
 **Package several interchangeable implementations of an operation (sorting,
 dictionary lookup, and more to come) behind one domain-level interface, and learn
