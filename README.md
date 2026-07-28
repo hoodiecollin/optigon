@@ -1,21 +1,30 @@
-# Optigon
+# Optigon <sub>·&nbsp;the many-faceted optimizer</sub>
 
-**The many-faceted optimizer.** Optigon packages several interchangeable
-implementations of an operation (sorting, dictionary lookup, and more to come)
-behind one domain-level interface, and learns — per workload — which
-implementation is fastest, using **regret-scored adaptive dispatch**. One Rust
-core, shipped as native addons to **TypeScript (Node + Bun)** and **Python**.
+![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)
+![Status: experimental](https://img.shields.io/badge/status-experimental-orange)
+
+**Package several interchangeable implementations of an operation (sorting,
+dictionary lookup, and more to come) behind one domain-level interface, and learn
+— per workload — which implementation is fastest, using regret-scored adaptive
+dispatch.** One Rust core, shipped as native addons to **TypeScript (Node + Bun)**
+and **Python**.
+
+> **Status: experimental.** Optigon is an early, single-author project under
+> active development. Two domains (`sort`, `dict`) and both training modes work
+> end-to-end, but the API is unstable, there's no published release yet, and
+> distribution (npm prebuilds, a wheel matrix) is still to come. Running from
+> source is the supported path today. No stability or support guarantees.
 
 The name reads two ways, both apt: *opti- + -gon* (an optimization **polygon** —
 one core presenting the optimal face per workload) and *opti- + -agon* (an
 optimal **contest** — implementations compete, the winner ships).
 
-> Optigon is the productization of the research in `ml-prototyping`, whose
-> writeup (`docs/adaptive-dispatch.md`) established the thesis: a cheap learned
-> model beats any fixed choice by ~12–20× on regret, and is economically viable
-> in real time *iff* the feature cost is near-free. Optigon puts that model on a
-> Rust core (real `candle`, the port target of the `@voidloop/ml-core` mirror)
-> and exposes it as installable libraries.
+> Optigon is the productization of the research in `ml-prototyping`, whose writeup
+> (`docs/adaptive-dispatch.md`, in that repo) established the thesis: a cheap
+> learned model beats any fixed choice by ~12–20× on regret, and is economically
+> viable in real time *iff* the feature cost is near-free. Optigon puts that model
+> on a Rust core (real `candle`, the port target of the `@voidloop/ml-core`
+> mirror) and exposes it as installable libraries.
 
 ## How it works
 
@@ -52,6 +61,20 @@ masked out of the loss, the regret argmin, and selection automatically.
    Mode 1 produces, just one column filled. Export the log to JSONL, retrain a
    fresh chooser offline, and redeploy it warm. Bandit-style partial feedback is
    enough to recover a chooser that beats the best fixed impl.
+
+## What this is (and isn't)
+
+It is a **learned dispatch layer**: given a workload, it predicts which of several
+correct-but-differently-performing implementations to run, and runs it. Every
+packaged impl produces the *same* result — the chooser only ever trades on speed,
+never on correctness, so a mispredicted choice is slower, never wrong.
+
+It is **not** a general autotuner or a JIT. It won't invent implementations, tune
+their parameters, or rewrite your code; you supply the impls behind a `Domain`
+trait and Optigon learns to pick among them. It's aimed at operations with (a)
+several reasonable implementations whose winner depends on the input, and (b) a
+cheap-to-extract feature that predicts that winner. Where those don't hold, a
+fixed choice is fine and Optigon buys you nothing.
 
 ## Quickstart
 
@@ -114,10 +137,42 @@ Structure modeled on `~/Projects/ForgeDB`'s native-binding stack. Distribution
 (joins, string search, cache, compression) follow this same `Domain`-trait
 pattern.
 
+## Docs
+
+- [docs/architecture.md](./docs/architecture.md) — the `Domain` trait, the
+  chooser (features → regret-scored model → select + run), and both training
+  modes (Mode-1 `Recorder`, Mode-2 `OnlineAb`).
+
 ## Status
 
 Two domains end-to-end — **sort** and **dict** (the latter exercising
 applicability masking) — plus **both training modes**: Mode-1 test-driven capture
 and Mode-2 production A/B (online capture → JSONL log → offline retrain →
 redeploy). Rust core (candle training + inference) + napi + pyo3 + demos, all
-green (11 core tests). License: MIT OR Apache-2.0.
+green (11 core tests). The API is unstable and there's no published release yet;
+see the experimental note at the top.
+
+## Contributing
+
+Contributions are welcome, though the project is early and single-author, so the
+accepted-domain surface is still moving. The one gate to run before opening a PR
+(the same four checks CI runs):
+
+```bash
+cargo fmt --all -- --check         # formatting
+cargo clippy --workspace -- -D warnings
+cargo test --workspace             # 11 core tests
+bunx @biomejs/biome check .        # JS/TS lint + format
+```
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](./LICENSE-APACHE))
+- MIT license ([LICENSE-MIT](./LICENSE-MIT))
+
+at your option. Unless you explicitly state otherwise, any contribution
+intentionally submitted for inclusion in this project by you, as defined in the
+Apache-2.0 license, shall be dual licensed as above, without any additional terms
+or conditions.
