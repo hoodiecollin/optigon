@@ -149,6 +149,12 @@ pattern.
 - [docs/architecture.md](./docs/architecture.md) — the `Domain` trait, the
   chooser (features → regret-scored model → select + run), and both training
   modes (Mode-1 `Recorder`, Mode-2 `OnlineAb`).
+- [WHAT_IT_IS.md](./WHAT_IT_IS.md) — per-feature guarantees *and* honest limits.
+  Where this README over-promises, that document wins.
+- [VERSION_ROADMAP.md](./VERSION_ROADMAP.md) — the state of the current release
+  effort. GitHub Issues remain authoritative.
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — the two-axis issue model, the label
+  ladder and its invariants, and the design → plan → spec gates.
 
 ## Status
 
@@ -162,8 +168,11 @@ see the experimental note at the top.
 ## Contributing
 
 Contributions are welcome, though the project is early and single-author, so the
-accepted-domain surface is still moving. The one gate to run before opening a PR
-(the same four checks CI runs):
+accepted-domain surface is still moving. Read [CONTRIBUTING.md](./CONTRIBUTING.md)
+first — the backlog lives in GitHub Issues under a two-axis model, and nothing gets
+coded until a design-doc (`rfc` issue) and an implementation-plan exist.
+
+The gate to run before opening a PR (the same four checks CI runs):
 
 ```bash
 cargo fmt --all -- --check         # formatting
