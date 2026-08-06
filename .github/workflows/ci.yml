@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  # Manual runs matter when the gate itself is the thing under test — a workflow you
+  # can only trigger by opening a PR cannot be verified without opening one.
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
