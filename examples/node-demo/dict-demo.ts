@@ -13,7 +13,7 @@
 //
 // Run from the repo root with `bun node:demo:dict` (or `make node-demo-dict`).
 
-import { DictChooser, dictImplNames } from "optigon-node"
+import { DictChooser, dictImplNames } from "optigon"
 
 // mulberry32 — same PRNG as the Rust core, so workloads look alike across sides.
 function mulberry32(seed: number): () => number {

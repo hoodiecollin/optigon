@@ -1,13 +1,37 @@
 {
-	"name": "optigon-node",
-	"version": "0.0.0",
-	"description": "Optigon native addon for Node.js and Bun.",
+	"name": "optigon",
+	"version": "0.1.0",
+	"description": "Optigon — learned per-workload dispatch. Package several interchangeable implementations of an operation behind one interface and learn which is fastest per workload. Native addon for Node.js and Bun.",
+	"license": "MIT OR Apache-2.0",
+	"author": "Collin Kokotas",
+	"homepage": "https://github.com/hoodiecollin/optigon",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hoodiecollin/optigon.git",
+		"directory": "crates/optigon-node"
+	},
+	"bugs": {
+		"url": "https://github.com/hoodiecollin/optigon/issues"
+	},
+	"keywords": [
+		"adaptive-dispatch",
+		"algorithm-selection",
+		"autotuning",
+		"regret",
+		"machine-learning",
+		"native-addon",
+		"napi-rs",
+		"rust"
+	],
 	"main": "index.js",
 	"types": "index.d.ts",
 	"napi": {
 		"name": "optigon"
 	},
 	"files": ["index.js", "index.d.ts", "optigon.*.node"],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"build": "napi build --platform --release",
 		"build:debug": "napi build --platform"

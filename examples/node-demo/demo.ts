@@ -10,7 +10,7 @@
 //
 // Run from the repo root with `bun node:demo` (or `make node-demo`).
 
-import { SortChooser, sortImplNames } from "optigon-node"
+import { SortChooser, sortImplNames } from "optigon"
 
 // mulberry32 — same PRNG as the Rust core, so workloads look alike across sides.
 function mulberry32(seed: number): () => number {

@@ -105,7 +105,7 @@ and redeploy the recovered chooser.
 ### TypeScript / Bun
 
 ```ts
-import { SortChooser } from "optigon-node"
+import { SortChooser } from "optigon"
 
 const chooser = new SortChooser()
 for (const keys of myWorkloads) chooser.observe(keys) // Mode-1 capture

@@ -7,6 +7,6 @@
 		"demo": "bun run demo.ts"
 	},
 	"dependencies": {
-		"optigon-node": "workspace:*"
+		"optigon": "workspace:*"
 	}
 }

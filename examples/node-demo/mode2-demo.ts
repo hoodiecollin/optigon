@@ -21,7 +21,7 @@ import {
 	SortOnline,
 	retrainSortFromLog,
 	sortImplNames,
-} from "optigon-node"
+} from "optigon"
 
 // mulberry32 — same PRNG as the Rust core, so workloads look alike across sides.
 function mulberry32(seed: number): () => number {

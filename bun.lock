@@ -12,8 +12,8 @@
       },
     },
     "crates/optigon-node": {
-      "name": "optigon-node",
-      "version": "0.0.0",
+      "name": "optigon",
+      "version": "0.1.0",
       "devDependencies": {
         "@napi-rs/cli": "^2.18.0",
       },
@@ -22,7 +22,7 @@
       "name": "optigon-node-demo",
       "version": "0.0.0",
       "dependencies": {
-        "optigon-node": "workspace:*",
+        "optigon": "workspace:*",
       },
     },
   },
@@ -63,7 +63,7 @@
 
     "bun-types": ["bun-types@1.3.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-4N0ig0fEomHt5R0KCFWjovxow98rIoRwKolrYdCcknNwMekCXRnWEUvgu5soYV8QXtVsrUD8B95MBOZGPvr6KQ=="],
 
-    "optigon-node": ["optigon-node@workspace:crates/optigon-node"],
+    "optigon": ["optigon@workspace:crates/optigon-node"],
 
     "optigon-node-demo": ["optigon-node-demo@workspace:examples/node-demo"],
 
