@@ -15,16 +15,38 @@ two domains (`sort`, `dict`), both training modes, both bindings, regret-scored
 selection on real `candle` — but nothing has been tagged, nothing is published, and the
 API is unstable.
 
-**No milestone has scope locked yet.** `v0.1.0`, `v0.2.0` and `v0.3.0` exist on GitHub
-as empty containers; every open issue currently sits on the maturity axis only. That is
-a deliberate resting state, not an oversight: scheduling is a commitment, and the first
-scope-lock should be a decision made once, not drifted into.
+**Scope is now locked across all three milestones** (2026-08-07). The shape of the
+decision was: fix the trait, then publish it, then grow it.
 
+| Milestone | What ships | Issues |
+|---|---|---|
+| **v0.1.0** | The `Domain`-trait shape — the three interface gaps in a shipped abstraction, plus the binding generator that removes per-domain handwork | #8, #9, #10, #1 |
+| **v0.2.0** | First published release: crates.io + npm prebuilds + PyPI wheels, release automation, CI that builds the artifacts, branch protection. Plus the website and launch promotion, neither of which gates the tag | Epic #15 (10 children), gate #26, site #27, promo #28–#30 |
+| **v0.3.0** | Domain expansion on a settled interface | #2, #3, #4, #5, #6, #7 |
+
+```bash
+gh issue list --milestone v0.1.0            # the cycle in flight
+gh issue list --label release-gate --state open   # any row blocks its milestone's tag
+gh issue list --label idea                  # speculative — needs an rfc first
 ```
-gh issue list --label plan-next   # committed, unscheduled — what v0.1.0 would draw from
-gh issue list --label idea        # speculative — needs an rfc first
-gh issue list --milestone v0.1.0  # scheduled (currently empty)
-```
+
+## Why this order
+
+**The trait comes first because it is the product.** #8 (cost is a scalar), #9
+(`applicable()` sees only the input) and #10 (`run()` is infallible) each change the
+signature of `Domain` — the one thing a consumer implements. Publishing before they land
+would burn the first published API on a shape already scheduled to break three ways;
+adding domains before they land would mean writing six trait impls against that same
+shape and then rewriting all six. Both failure modes are avoided by the same ordering.
+
+This is wired as **native GitHub blocking relationships**, not prose: every domain issue
+(#2–#7) is *blocked by* #8, #9, #10, and #1. #1 earns its place there because each domain
+issue's own acceptance criteria already require the generator ("via the generator macro —
+do not hand-write").
+
+**Publishing sits between them** rather than last. Two domains is a defensible first
+release, the honest scope note already says as much, and a published artifact is worth
+more than a sixth domain nobody can install.
 
 ## Complete (in code, unreleased)
 
@@ -42,17 +64,20 @@ Verified against the tree, not asserted from memory — see
 
 ## Still deferred
 
-Everything below is open work, sequenced on engineering merit. The ordering rationale
-lives on each issue; this is the shape of it:
+Everything below is open work. The ordering rationale lives on each issue; this is the
+shape of it:
 
-| Area | Issues | Why it waits |
+| Area | Issues | Milestone |
 |---|---|---|
-| Interface gaps in a shipped abstraction | #8 scalar cost · #9 input-only applicability · #10 infallible `run()` | Each is exposed *by* domain expansion, so they are being confronted alongside it rather than speculatively |
-| Domain expansion | #2 topk · #3 substring search · #4 dedup · #5 join · #6 shortest path · #7 compression | Deliberately ordered: four scalar-cost domains before compression, so the multi-objective design (#8) meets real breadth instead of being fitted to one case |
-| Binding ergonomics | #1 generate napi + pyo3 classes from a `Domain` impl | The core is generic; the bindings are not. Every new domain currently costs two hand-written ~130-line classes |
-| Distribution | not yet filed | No npm prebuilds and no wheel matrix. Running from source is the supported path today |
+| Interface gaps in a shipped abstraction | #8 scalar cost · #9 input-only applicability · #10 infallible `run()` | v0.1.0 |
+| Binding ergonomics | #1 generate napi + pyo3 classes from a `Domain` impl | v0.1.0 |
+| Distribution — three channels, none of them built | Epic #15: names, package hygiene, crates.io, npm prebuilds, wheels, CI, automation, community health, sweep, tag | v0.2.0 |
+| Website + launch | #27 site · #28 repo presence · #29 the writeup · #30 the announcement | v0.2.0 |
+| Domain expansion | #2 topk · #3 substring search · #4 dedup · #5 join · #6 shortest path · #7 compression | v0.3.0 |
 
-Epic #11 is the umbrella over domain expansion and the interface gaps together.
+Epic #11 is the umbrella over domain expansion and the interface gaps together; it spans
+v0.1.0 and v0.3.0 and so carries no milestone of its own. Epic #15 is the umbrella over
+the first published release and sits wholly on v0.2.0.
 
 ## Not on the spine
 
