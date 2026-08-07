@@ -12,7 +12,8 @@
 			"**/node_modules/**",
 			"**/*.node",
 			"crates/optigon-node/index.js",
-			"crates/optigon-node/index.d.ts"
+			"crates/optigon-node/index.d.ts",
+			".pm-playbook/**"
 		]
 	}
 }
