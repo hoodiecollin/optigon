@@ -13,10 +13,22 @@ requires-python = ">=3.8"
 license = { text = "MIT OR Apache-2.0" }
 authors = [{ name = "Collin Kokotas" }]
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
 ]
+keywords = ["adaptive-dispatch", "algorithm-selection", "autotuning", "regret", "rust"]
+# `version` is absent from [project] on purpose: maturin resolves it from the
+# crate's Cargo.toml when it is declared dynamic, which keeps the wheel on the
+# same lockstep version line as the crates (see the ledger on issue #26).
 dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/hoodiecollin/optigon"
+Repository = "https://github.com/hoodiecollin/optigon"
+Issues = "https://github.com/hoodiecollin/optigon/issues"
 
 [tool.maturin]
 module-name = "optigon"
