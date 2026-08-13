@@ -13,8 +13,9 @@ shipped code works; [`VERSION_ROADMAP.md`](./VERSION_ROADMAP.md) and
 [`WHAT_IT_IS.md`](./WHAT_IT_IS.md) describe state and guarantees. None of them are a
 task list.
 
-When you commit to a piece of work, file the issue *first* (`tech-debt` for a grounded
-gap in shipped code, `idea` for a speculative feature), then implement.
+When you commit to a piece of work, file the issue *first* — with exactly one work type
+(`improvement`, `bugfix` or `experiment`) — then implement. Leave it unmilestoned if it is
+speculative; that is what "idea" means now, and it is derived rather than stuck on.
 
 ## Two axes, and nothing else
 
@@ -22,8 +23,8 @@ Work is organized by exactly two orthogonal axes:
 
 | Axis | Answers | Mechanism |
 |---|---|---|
-| **Milestone** | *when* | `v0.1.0`, `v0.2.0`, … — the release spine |
-| **Labels** | *what kind / how mature* | the taxonomy below |
+| **Milestone** | *when* — assigning one means **committed**; being the cycle in flight means *scheduled* | `v0.1.0`, `v0.2.0`, … — the release spine |
+| **Labels** | *what kind* | the taxonomy below |
 
 Nothing else decomposes work. Epics decompose through GitHub **native sub-issues** —
 not task-list checkboxes, not a Project field. The [Optigon Roadmap
@@ -33,32 +34,38 @@ are a parallel truth that drifts.
 
 ## The commitment ladder
 
+The ladder is **derived**, not labelled. Every work item carries exactly one *type*; the type
+decides its gate sub-issues; and the first gate that is not closed says where the work sits.
+
 ```
-speculative      committed         scheduled          shipping           shipped
-──────────       ─────────         ─────────          ────────           ───────
-label: idea  →   label: plan-next → milestone assigned → merged/closed  → GitHub Release
-(needs an RFC)   (unscheduled)      (drop plan-next)     (into milestone)  (roadmap flips)
+idea → design-next → design-pending → plan-next → plan-pending
+     → impl-next → impl-pending → closed-in-milestone → released
+```
+
+Those are rung *names*, not labels — there is nothing to set and nothing to forget to unset, and a
+rung can never disagree with the artifacts it summarizes. No GitHub filter can compute it, so ask:
+
+```bash
+npx @hoodiecollin/pm-playbook ladder
 ```
 
 | Label | Means |
 |---|---|
-| `idea` | Speculative. Needs a design-doc before implementation. |
-| `plan-next` | Committed, not yet scheduled to a version. |
-| `rfc` | A design captured as an issue (Gate 1). |
-| `experiment` | A spike to measure; the deliverable is a decision, never an artifact. Never milestoned. |
-| `epic` | Umbrella; decomposes via native sub-issues. |
-| `tech-debt` | Known gap or stub in shipped code. |
-| `perf` | Performance cost / triage item. |
-| `config` | Configurable-runtime-behavior work. |
-| `legacy-audit` | Prune dead / product-misaligned code. |
+| `improvement` | Makes the product better: features, refactors, perf, debt. Gates: design → plan → impl. |
+| `bugfix` | A defect in behavior that already exists. Gates: diagnose → fix. |
+| `experiment` | The deliverable is a finding, not a shippable artifact. Gates: research → evaluate. Never milestoned. |
+| `hotfix` | Urgent `bugfix` in released behavior, on its own patch milestone. Never alone — always with `bugfix`. |
+| `epic` | Umbrella; decomposes via native sub-issues. Not a work type, and never carries gates. |
 | `release-gate` | Blocks the tag: this milestone cannot be released until it closes. |
+| `{type}:gate-{n}` | A gate sub-issue. Created by `materialize`, **never by hand**. |
 
 ### Invariants (CI enforces these)
 
-- **`plan-next` ⊕ milestone.** Assigning a milestone *is* scheduling — drop `plan-next`.
-- **`idea` ⊕ `plan-next`.** Speculative and committed are opposites.
-- **`experiment` ⊕ {`idea`, `plan-next`, milestone}.** A spike never rides the spine.
-- **`release-gate` ⇒ milestone**, and never with `idea` / `plan-next` / `experiment`.
+- **Exactly one type label** per work item — never zero, never two (PM010).
+- **`experiment` ⊕ milestone.** A spike never rides the release spine (PM003).
+- **A gate's milestone equals its parent's** (PM011), and an `epic` never carries gates (PM012).
+- **Work on the focused milestone carries its complete gate set** (PM013).
+- **`release-gate` ⇒ milestone**, and never with `experiment` (PM004/PM005).
 
 `.github/workflows/playbook.yml` runs `pm-playbook check` on every PR, so a violation
 fails review rather than being discovered months later. Run it yourself with:
@@ -67,18 +74,21 @@ fails review rather than being discovered months later. Run it yourself with:
 npx @hoodiecollin/pm-playbook check --repo hoodiecollin/optigon
 ```
 
-## Nothing gets coded until design → plan → spec
+## Nothing gets coded until the gates are closed
 
-Three gates, in series, before implementation:
+Gates are **native sub-issues** of the work item, created by `pm-playbook materialize` as a
+complete set — **never by hand**, because a hand-made gate destroys the only thing that makes an
+*absent* gate meaningful. An `improvement` takes three; a `bugfix` takes two (diagnose → fix).
 
-1. **Gate 1 — design-doc (WHAT & WHY).** An **`rfc` issue**: problem, desired behavior,
-   solution *shape*, alternatives, explicit non-goals. **Design lives as an issue, never
-   as a committed `proposal-*.md`.** The only design docs in this tree are durable
-   architecture references for *shipped* features — that is what `docs/architecture.md`
-   is. Accepted → drop `idea`, add `plan-next`.
-2. **Gate 2 — implementation-plan (HOW).** Written after the design is accepted and the
-   item is scheduled: files to touch, build order, blockers, interfaces, and the
-   scenarios to write. Lives on the issue.
+**Closing a gate means accepted.** That is the whole signalling mechanism — there is no status
+label, and the ladder is derived from which gates are closed.
+
+1. **Gate 1 — design (WHAT & WHY).** Problem, desired behavior, solution *shape*, alternatives,
+   explicit non-goals. **Design lives on the gate issue, never as a committed `proposal-*.md`.**
+   The only design docs in this tree are durable architecture references for *shipped* features —
+   that is what `docs/architecture.md` is.
+2. **Gate 2 — plan (HOW).** Written after the design gate closes: files to touch, build order,
+   blockers, interfaces, and the scenarios to write.
 3. **Gate 3 — spec-first, RED → GREEN.** Write the failing tests, implement to green,
    refactor under green. For Optigon that means `cargo test` at the core level plus the
    binding-level demos in `examples/`.
