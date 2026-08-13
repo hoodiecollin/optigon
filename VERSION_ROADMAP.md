@@ -27,7 +27,7 @@ decision was: fix the trait, then publish it, then grow it.
 ```bash
 gh issue list --milestone v0.1.0            # the cycle in flight
 gh issue list --label release-gate --state open   # any row blocks its milestone's tag
-gh issue list --label idea                  # speculative — needs an rfc first
+npx @hoodiecollin/pm-playbook ladder        # the derived rung, including the unmilestoned ideas
 ```
 
 ## Why this order

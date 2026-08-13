@@ -170,7 +170,7 @@ see the experimental note at the top.
 Contributions are welcome, though the project is early and single-author, so the
 accepted-domain surface is still moving. Read [CONTRIBUTING.md](./CONTRIBUTING.md)
 first — the backlog lives in GitHub Issues under a two-axis model, and nothing gets
-coded until a design-doc (`rfc` issue) and an implementation-plan exist.
+coded until the design and plan gates are closed.
 
 The gate to run before opening a PR (the same four checks CI runs):
 

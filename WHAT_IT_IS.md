@@ -65,7 +65,7 @@ whole thesis rests on.
 
 ## Known interface gaps
 
-These are gaps in a *shipped* abstraction, tracked as `tech-debt`, and they bound what
+These are gaps in a *shipped* abstraction, tracked as `improvement`, and they bound what
 domains can be added without an interface change:
 
 - **#8 — cost is a scalar.** Blocks every multi-objective domain (compression, sketches,
